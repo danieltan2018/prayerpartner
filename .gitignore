@@ -1,5 +1,8 @@
 *.pyc
 *.log
 .DS_Store
-*.json
-new.txt
+*.key
+*.pem
+params.py
+users.json
+x.json
