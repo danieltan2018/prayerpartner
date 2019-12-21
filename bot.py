@@ -116,7 +116,7 @@ def callbackquery(update, context):
     current_time = now.strftime("%d/%m/%Y %H:%M:%S")
     query = update.callback_query
     data = query.data
-    user_id = int(query.from_user.id)
+    user_id = str(query.from_user.id)
     first_name = query.from_user.first_name
     last_name = query.from_user.last_name
     full_name = (str(first_name or '') + ' ' + str(last_name or '')).strip()
@@ -237,6 +237,7 @@ def main():
 
     loader()
 
+    #updater.start_polling()
     updater.start_webhook(listen='0.0.0.0',
                           port=port,
                           url_path=bottoken,
