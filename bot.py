@@ -189,13 +189,12 @@ def callbackquery(update, context):
     for item in x['OnlyGirl']:
         onlygirl += users[item] + '\n'
     if (len(x['Guy']) + len(x['Girl']) + len(x['OnlyGuy']) + len(x['OnlyGirl'])) % 2 != 0:
-        odd = '_1 on waitlist due to odd number_'
+        odd = '_1 on waitlist due to odd number_\n'
     else:
-        odd = ''
+        odd = '\n'
     msg = '''
 *Prayer Partner CountMeIn*
 {}
-
 *I'm a guy: assign randomly* ({})
 {}
 *I'm a girl: assign randomly* ({})
