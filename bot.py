@@ -191,7 +191,7 @@ def callbackquery(update, context):
     if (len(x['Guy']) + len(x['Girl']) + len(x['OnlyGuy']) + len(x['OnlyGirl'])) % 2 != 0:
         odd = '_1 on waitlist due to odd number_\n'
     else:
-        odd = '\n'
+        odd = ''
     msg = '''
 *Prayer Partner CountMeIn*
 {}
@@ -236,7 +236,7 @@ def main():
 
     loader()
 
-    #updater.start_polling()
+    # updater.start_polling()
     updater.start_webhook(listen='0.0.0.0',
                           port=port,
                           url_path=bottoken,
