@@ -113,13 +113,13 @@ def loader():
 
 def callbackquery(update, context):
     now = datetime.now()
-    current_time = now.strftime("%d/%m/%Y %H:%M:%S")
+    current_time = now.strftime("%m/%d/%Y %H:%M:%S")
     query = update.callback_query
     data = query.data
     user_id = int(query.from_user.id)
     first_name = query.from_user.first_name
     last_name = query.from_user.last_name
-    full_name = (str(first_name or '') + ' ' + str(last_name or '')).strip()
+    full_name = (str(first_name) + ' ' + str(last_name)).strip()
     global users
     users[user_id] = full_name
     with open('users.json', 'w') as userfile:
@@ -188,13 +188,8 @@ def callbackquery(update, context):
     onlygirl = ''
     for item in x['OnlyGirl']:
         onlygirl += users[item] + '\n'
-    if (len(x['Guy']) + len(x['Girl']) + len(x['OnlyGuy']) + len(x['OnlyGirl'])) % 2 != 0:
-        odd = '_1 on waitlist due to odd number_'
-    else:
-        odd = ''
     msg = '''
 *Prayer Partner CountMeIn*
-{}
 
 *I'm a guy: assign randomly* ({})
 {}
@@ -205,7 +200,7 @@ def callbackquery(update, context):
 *I'm a girl: assign same gender* ({})
 {}
 _Last updated: {}_
-    '''.format(odd, len(x['Guy']), guy, len(x['Girl']), girl, len(x['OnlyGuy']), onlyguy, len(x['OnlyGirl']), onlygirl, current_time)
+    '''.format(len(x['Guy']), guy, len(x['Girl']), girl, len(x['OnlyGuy']), onlyguy, len(x['OnlyGirl']), onlygirl, current_time)
     keyboard = [
         [InlineKeyboardButton(
             "I'm a guy: assign randomly", callback_data='Guy')],
