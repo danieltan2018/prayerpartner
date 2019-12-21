@@ -232,7 +232,6 @@ def main():
 
     loader()
 
-    updater.start_polling()
     updater.start_webhook(listen='0.0.0.0',
                           port=port,
                           url_path=bottoken,
