@@ -43,12 +43,6 @@ logging.basicConfig(filename='debug.log', filemode='a+', format='%(asctime)s - %
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-TARGET, CONTENT = range(2)
-
-
-def collector():
-    json.dumps('', indent=4, sort_keys=True)
-
 
 def adminonly(func):
     @wraps(func)
