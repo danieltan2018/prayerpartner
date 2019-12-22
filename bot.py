@@ -90,13 +90,15 @@ def start(update, context):
 def new(update, context):
     global leftpairs
     global rightpairs
+    global newpartners
     context.bot.send_chat_action(
         chat_id=admin, action=telegram.ChatAction.TYPING)
     masterlist = shuffle()
-    print(masterlist)
+    while not checklist(masterlist):
+        masterlist = shuffle()
     if masterlist == None:
-        update.message.reply_text(
-            "_Unable to randomise_", parse_mode=telegram.ParseMode.MARKDOWN)
+        context.bot.send_message(chat_id=admin, text='_Unable to randomise_',
+                                 parse_mode=telegram.ParseMode.MARKDOWN)
     else:
         leftpairs = []
         rightpairs = []
@@ -105,7 +107,11 @@ def new(update, context):
             leftpairs.append(masterlist[i])
             rightpairs.append(masterlist[i+1])
             i += 2
-    compose = '*Prayer Partners*\n\n'
+    try:
+        compose = '*Prayer Partners ({})*\n\n'.format(period)
+    except NameError:
+        context.bot.send_message(chat_id=admin, text='_Date not set_',
+                                 parse_mode=telegram.ParseMode.MARKDOWN)
     for i in range(len(leftpairs)):
         taggedleft = "[{}](tg://user?id={})".format(
             users[leftpairs[i]], leftpairs[i])
@@ -113,6 +119,35 @@ def new(update, context):
             users[rightpairs[i]], rightpairs[i])
         compose += '{} & {}\n'.format(taggedleft, taggedright)
     context.bot.send_message(chat_id=admin, text=compose,
+                             parse_mode=telegram.ParseMode.MARKDOWN)
+    newpartners = compose
+
+
+@adminonly
+def send(update, context):
+    global leftpairs
+    global rightpairs
+    global pairings
+    try:
+        for i in range(len(leftpairs)):
+            pairings.setdefault(leftpairs[i], []).append(rightpairs[i])
+            pairings.setdefault(rightpairs[i], []).append(leftpairs[i])
+        context.bot.send_message(chat_id=chat, text=newpartners,
+                                 parse_mode=telegram.ParseMode.MARKDOWN)
+        with open('pairings.json', 'w+') as pairingfile:
+            json.dump(pairings, pairingfile)
+        del leftpairs
+        del rightpairs
+    except:
+        context.bot.send_message(chat_id=admin, text='_Unable to send_',
+                                 parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+@adminonly
+def setdate(update, context):
+    global period
+    period = update.message.text
+    context.bot.send_message(chat_id=admin, text='_Date set_',
                              parse_mode=telegram.ParseMode.MARKDOWN)
 
 
@@ -148,8 +183,6 @@ def shuffle():
         for item in x[gender]:
             masterlist.append(item)
     random.shuffle(masterlist)
-    if not checklist(masterlist):
-        shuffle()
     return masterlist
 
 
@@ -293,7 +326,9 @@ def main():
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(Filters.text, setdate))
     dp.add_handler(CommandHandler("new", new))
+    dp.add_handler(CommandHandler("send", send))
     dp.add_handler(CallbackQueryHandler(callbackquery))
 
     loader()
