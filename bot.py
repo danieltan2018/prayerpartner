@@ -86,11 +86,40 @@ def start(update, context):
         chat_id=chat, text=msg, reply_markup=reply_markup, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
+@adminonly
+def new(update, context):
+    global leftpairs
+    global rightpairs
+    context.bot.send_chat_action(
+        chat_id=admin, action=telegram.ChatAction.TYPING)
+    masterlist = shuffle()
+    print(masterlist)
+    if masterlist == None:
+        update.message.reply_text(
+            "_Unable to randomise_", parse_mode=telegram.ParseMode.MARKDOWN)
+    else:
+        leftpairs = []
+        rightpairs = []
+        i = 0
+        while i < len(masterlist) - 1:
+            leftpairs.append(masterlist[i])
+            rightpairs.append(masterlist[i+1])
+            i += 2
+    compose = '*Prayer Partners*\n\n'
+    for i in range(len(leftpairs)):
+        taggedleft = "[{}](tg://user?id={})".format(
+            users[leftpairs[i]], leftpairs[i])
+        taggedright = "[{}](tg://user?id={})".format(
+            users[rightpairs[i]], rightpairs[i])
+        compose += '{} & {}\n'.format(taggedleft, taggedright)
+    context.bot.send_message(chat_id=admin, text=compose,
+                             parse_mode=telegram.ParseMode.MARKDOWN)
+
+
 def loader():
     global x
     try:
         with open('x.json') as xfile:
-            x = {}
             x = json.load(xfile)
     except:
         with open('x.json', 'w+') as xfile:
@@ -98,11 +127,49 @@ def loader():
     global users
     try:
         with open('users.json') as userfile:
-            users = {}
             users = json.load(userfile)
     except:
         with open('users.json', 'w+') as userfile:
             users = {}
+    global pairings
+    try:
+        with open('pairings.json') as pairingfile:
+            pairings = json.load(pairingfile)
+    except:
+        with open('pairings.json', 'w+') as pairingfile:
+            pairings = {}
+
+
+def shuffle():
+    if (len(x['Guy']) + len(x['Girl']) + len(x['OnlyGuy']) + len(x['OnlyGirl'])) % 2 != 0:
+        return None
+    masterlist = []
+    for gender in x:
+        for item in x[gender]:
+            masterlist.append(item)
+    random.shuffle(masterlist)
+    if not checklist(masterlist):
+        shuffle()
+    return masterlist
+
+
+def checklist(masterlist):
+    i = 0
+    while i < len(masterlist) - 1:
+        left = masterlist[i]
+        right = masterlist[i+1]
+        i += 2
+        if left in x['OnlyGuy'] and right not in x['Guy']:
+            return False
+        if right in x['OnlyGuy'] and left not in x['Guy']:
+            return False
+        if left in x['OnlyGirl'] and right not in x['Girl']:
+            return False
+        if right in x['OnlyGirl'] and left not in x['Girl']:
+            return False
+        if left in pairings and right in pairings[left]:
+            return False
+    return True
 
 
 def callbackquery(update, context):
@@ -226,11 +293,12 @@ def main():
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("new", new))
     dp.add_handler(CallbackQueryHandler(callbackquery))
 
     loader()
 
-    # updater.start_polling()
+    #updater.start_polling()
     updater.start_webhook(listen='0.0.0.0',
                           port=port,
                           url_path=bottoken,
