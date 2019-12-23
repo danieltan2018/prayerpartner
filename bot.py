@@ -108,7 +108,7 @@ def new(update, context):
             rightpairs.append(masterlist[i+1])
             i += 2
     try:
-        compose = '*Prayer Partners ({})*\n\n'.format(period)
+        compose = '*Prayer Partners ({})*\n'.format(period)
     except NameError:
         context.bot.send_message(chat_id=admin, text='_Date not set_',
                                  parse_mode=telegram.ParseMode.MARKDOWN)
