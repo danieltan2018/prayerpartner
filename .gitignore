@@ -4,6 +4,4 @@
 *.key
 *.pem
 params.py
-users.json
-x.json
-pairings.json
+*.json
