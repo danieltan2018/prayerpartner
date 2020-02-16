@@ -326,9 +326,9 @@ def main():
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.text, setdate))
     dp.add_handler(CommandHandler("new", new))
     dp.add_handler(CommandHandler("send", send))
+    dp.add_handler(MessageHandler(Filters.text, setdate))
     dp.add_handler(CallbackQueryHandler(callbackquery))
 
     loader()
